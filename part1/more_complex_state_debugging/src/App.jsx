@@ -1,0 +1,46 @@
+import { useState } from 'react'
+
+// In React, state must be treated as immutable.
+// ❌ Don’t modify the existing object
+// ✅ Always create a new object
+// or React might think: “Oh, this is the same object. No need to re-render.”
+
+
+/* NEVER:
+
+Push into arrays in state
+
+Modify objects in state
+
+Do ++, .push(), .splice() directly
+
+ALWAYS:
+
+Spread ...
+
+Use .map(), .filter()
+
+Create new objects */
+
+
+
+const App = () => {
+
+
+  const [clicks, setClicks] = useState({left : 0, right : 0})
+
+   const handleLeftClick = () => setClicks({ ...clicks, left: clicks.left + 1 })
+
+   const handleRightClick = () => setClicks({ ...clicks, right: clicks.right + 1 })
+
+  return (
+    <div>
+      {clicks.left}
+      <button onClick={ handleLeftClick}>left</button>
+      <button onClick = { handleRightClick}>right</button>
+      {clicks.right}
+    </div>
+  )
+}
+
+export default App
