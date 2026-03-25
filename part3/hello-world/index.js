@@ -3,9 +3,6 @@ const express = require ('express')
 // Browsers block cross-origin requests by default for security
 // CORS lets the server allow exceptions, you fix it on the backend
 const cors = require('cors')
-
-
-
 const app= express()
 
 // The json-parser takes the JSON data of
@@ -13,6 +10,7 @@ const app= express()
 //  and then attaches it to the body property of the request object before the route handler is called.
 app.use(express.json())
 app.use(cors({origin: 'http://localhost:5173'})) // Only your frontend can access the backend.
+app.use(express.static('dist'))
 
 let notes = [
     {
@@ -102,7 +100,7 @@ const unknownEndpoint = (request,response) => {
 app.use(unknownEndpoint)
 
 
-const PORT = 3001
+const PORT = process.env.PORT || 3001
 app.listen(PORT)
 console.log(`Server running on port ${PORT}`)
 
