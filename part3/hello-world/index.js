@@ -16,28 +16,6 @@ app.use(express.json())
 app.use(cors({origin: 'http://localhost:5173'})) // Only your frontend can access the backend.
 app.use(express.static('dist'))
 
-// mongoose
-const mongoose = require('mongoose')
-// DO NOT SAVE YOUR PASSWORD TO GITHUB!!
-const password = process.argv[2]
-const url = `mongodb+srv://FSOlearning:${password}@cluster0.gblzoep.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0`
-
-mongoose.set('strictQuery',false)
-mongoose.connect(url, { family: 4 })
-
-const noteSchema = new mongoose.Schema({
-  content: String,
-  important: Boolean,
-})
- noteSchema.set('toJSON', {
-  transform: (document, returnedObject) => {
-    returnedObject.id = returnedObject._id.toString()
-    delete returnedObject._id
-    delete returnedObject.__v
-  }
-})
-
-const Note = mongoose.model('Note', noteSchema)
 
 
 let notes = [
@@ -75,33 +53,37 @@ app.get('/api/notes', (request, response) => {
 
 
 app.get('/api/notes/:id',(request,response) => {
-    const id = request.params.id
+
+  Note.findById(request.params.id).then(note => response.json(note))
+
+    /*  this was before mongo: const id = request.params.id
     const note = notes.find(note => note.id === id)
 
     if (note){
         response.json(note)
     } else {
         response.status(404).end()
-    }
+    } */
 
 })
 
 
 
 app.delete('/api/notes/:id',(request,response) => {
-     const id = request.params.id
-     notes = notes.filter(note => note.id !== id)
-
-     response.status(204).end()
+     Note.findByIdAndDelete(request.params.id)
+    .then(() => {
+      response.status(204).end()
+})
 })
 
-const generateId = () => {
+/*  NOW MONGO WILL GENERATE IDS....
+  const generateId = () => {
     const maxId = notes.length > 0 ?
      Math.max(...notes.map(note => Number(note.id))) : 0
      return String(maxId + 1)
      // Math.max does not take arrays,so we use the spread operator to convert to (1,2,3)
+  } */
 
-}
 app.post('/api/notes', (request,response) => {
     console.log(request.headers) // to find out what all the headers were
     console.log(request.get('Content-Type')) // to findout the content type header
@@ -114,14 +96,13 @@ app.post('/api/notes', (request,response) => {
         })
      }
 
-     const note = {
+     const note = new Note ({
         content: body.content,
         important: body.important || false,
-        id: generateId()
-     }
+        //id: generateId()
+     })
 
-     notes = notes.concat(note)
-     response.json(note)
+     note.save().then(savedNote => response.json(savedNote))
 
 })
 

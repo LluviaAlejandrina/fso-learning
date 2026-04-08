@@ -2,6 +2,6 @@ POST http://localhost:3001/api/notes
 Content-Type: application/json
 
 {
-  "content": "vscode REST client is a good tool",
-  "important": false
+  "content": "fsecond test with mongo notes",
+  "important": true
 }

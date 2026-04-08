@@ -3,8 +3,8 @@ GET http://localhost:3001/api/notes
 
 
 ### Get one note
-GET http://localhost:3001/api/notes/1
+GET http://localhost:3001/api/notes/69cae7a8987313708ec83c3f
 
 
 ### Delete note
-DELETE http://localhost:3001/api/notes/2
+DELETE http://localhost:3001/api/notes/69d6abd8d9fd14358d036930
