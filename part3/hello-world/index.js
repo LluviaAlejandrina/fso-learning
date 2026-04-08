@@ -1,9 +1,13 @@
 
 const express = require ('express')
+require('dotenv').config()
+const Note = require('./models/note')
+
 // Browsers block cross-origin requests by default for security
 // CORS lets the server allow exceptions, you fix it on the backend
 const cors = require('cors')
 const app= express()
+
 
 // The json-parser takes the JSON data of
 //  a request, transforms it into a Js object
@@ -11,6 +15,30 @@ const app= express()
 app.use(express.json())
 app.use(cors({origin: 'http://localhost:5173'})) // Only your frontend can access the backend.
 app.use(express.static('dist'))
+
+// mongoose
+const mongoose = require('mongoose')
+// DO NOT SAVE YOUR PASSWORD TO GITHUB!!
+const password = process.argv[2]
+const url = `mongodb+srv://FSOlearning:${password}@cluster0.gblzoep.mongodb.net/noteApp?retryWrites=true&w=majority&appName=Cluster0`
+
+mongoose.set('strictQuery',false)
+mongoose.connect(url, { family: 4 })
+
+const noteSchema = new mongoose.Schema({
+  content: String,
+  important: Boolean,
+})
+ noteSchema.set('toJSON', {
+  transform: (document, returnedObject) => {
+    returnedObject.id = returnedObject._id.toString()
+    delete returnedObject._id
+    delete returnedObject.__v
+  }
+})
+
+const Note = mongoose.model('Note', noteSchema)
+
 
 let notes = [
     {
@@ -38,7 +66,11 @@ app.get('/', (request,response) => {
 })
 
 app.get('/api/notes', (request, response) => {
-    response.json(notes)
+    Note.find({}).then(notes => response.json(notes))
+    .catch(error => {
+      console.error("ERROR FETCHING NOTES:", error)
+      response.status(500).send("Database error")
+    })
 })
 
 
@@ -105,6 +137,13 @@ app.listen(PORT)
 console.log(`Server running on port ${PORT}`)
 
 
+/* Since from the frontend's perspective all requests are made to http://localhost:5173,
+which is the single origin, there is no longer a need for the backend's cors middleware.
+Therefore, we can remove references to the cors library from the backend's index.js file
+and remove cors from the project's dependencies:
+npm remove cors
+ */
+
 
 /*
 REST APIs:
@@ -113,3 +152,10 @@ Organize data as resources
 Each resource has a URL
 HTTP verbs define actions
 Usually follow CRUD operations */
+
+
+/* Situation	        Use Proxy	    Use CORS	    Use Same-Origin
+Dev (5173 → 3001)	    ✅ YES	      ❌ optional	 ❌
+Prod (separate domains)	❌	          ✅ YES	         ❌
+Prod (same server)	    ❌	          ❌            	 ✅ YES just for simple apps
+ */
