@@ -34,7 +34,7 @@ note.save().then(result => {
 }) */
 
 
- Note.find({}).then(result => {
+Note.find({}).then(result => {
   result.forEach(note => {
     console.log(note)
   })

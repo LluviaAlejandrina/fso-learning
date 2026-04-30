@@ -2,6 +2,15 @@ POST http://localhost:3001/api/notes
 Content-Type: application/json
 
 {
-  "content": "fsecond test with mongo notes",
+  "content": "fse",
   "important": true
+}
+
+### update note
+PUT http://localhost:3001/api/notes/69cae7a8987313708ec83c3f
+Content-Type: application/json
+
+{
+  "content": "HTML is easyyyyyyyyyyy",
+  "important": false
 }
